@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.19.xsd">
+    <changeSet author="group4" id="create_hibernate_sequence">
+        <createSequence cycle="false" incrementBy="1" maxValue="9223372036854775806" minValue="1"
+                        sequenceName="public_seq" startValue="1"/>
+    </changeSet>
+</databaseChangeLog>

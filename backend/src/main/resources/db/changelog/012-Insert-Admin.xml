@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.19.xsd">
+
+    <changeSet id="insert_admin_user" author="group4">
+    <insert tableName="users">
+        <column name="id" valueSequenceNext="public_seq"/>
+        <column name="first_name" value="sys"/>
+        <column name="last_name" value="admin"/>
+        <column name="pw" value="$2a$12$Y3jjROaqsWLjFUMt8Td11.o98gk91aMVAO/8JsnxqxKYX1ryRlbUC"/>
+        <column name="role" value="ROLE_ADMIN"/>
+    </insert>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.19.xsd">
+    <changeSet id="add_fk_computer-room-reservation_computer-room" author="group4">
+        <addForeignKeyConstraint baseTableName="computer_room_reservation" baseColumnNames="computer_room_id"
+                                 constraintName="fk_computer-room-reservation_computer-room"
+                                 referencedTableName="computer_room"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+    <changeSet id="add_fk_computer-room-reservation_user" author="group4">
+        <addForeignKeyConstraint baseTableName="computer_room_reservation" baseColumnNames="user_id"
+                                 constraintName="fk_computer-room-reservation_user"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>

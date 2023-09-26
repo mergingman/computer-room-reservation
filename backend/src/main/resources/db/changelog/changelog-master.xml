@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <include file="db/changelog/001-Create-Sequence.xml"/>
+    <include file="db/changelog/002-Create-Table_User.xml"/>
+    <include file="db/changelog/003-Create-Table-Computer.xml"/>
+    <include file="db/changelog/004-Create-Table-ComputerRoom.xml"/>
+    <include file="db/changelog/005-Create-Table-ComputerRoomReservation.xml"/>
+    <include file="db/changelog/006-Create-JoinTable-Computer-Software.xml"/>
+    <include file="db/changelog/007-Create-Table-Software.xml"/>
+    <include file="db/changelog/008-Add-ForeignKeyConstraints-ComputerRoomReservation.xml"/>
+    <include file="db/changelog/009-Add-ForeignKeyConstraints-Computer.xml"/>
+    <include file="db/changelog/010-Add-ForeignKeyConstraints-Software.xml"/>
+    <include file="db/changelog/011-Add-UniqueConstraint-User.xml"/>
+    <include file="db/changelog/012-Insert-Admin.xml"/>
+</databaseChangeLog>
