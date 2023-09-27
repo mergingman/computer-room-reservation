@@ -2,12 +2,35 @@ import {createApp, markRaw} from 'vue'
 import App from './App.vue'
 import router from './router'
 
-import {createVuetify} from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
+import {createVuetify} from 'vuetify';
+import type {ThemeDefinition} from 'vuetify';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
+import 'vuetify/dist/vuetify.min.css';
+import 'v-calendar/style.css';
+import {createPinia} from "pinia";
 // @ts-ignore
 import VCalendar from 'v-calendar';
-import customTheme from './theme';
+
+const customTheme: ThemeDefinition = {
+    primary: '#8CBDB9', // Your primary color
+    secondary: '#E09E50', // Your secondary color
+    tertiary: '#2D3E4E',
+    background: '#E8ECEB', // Your background color
+    dark: false,
+    colors: {
+        background: '#E8ECEB',
+        tertiary: '#2D3E4E',
+        primary: '#8CBDB9',
+        'primary-darken-1': '#3700B3',
+        secondary: '#E09E50',
+        'secondary-darken-1': '#018786',
+        error: '#B00020',
+        info: '#2196F3',
+        success: '#4CAF50',
+        warning: '#FB8C00',
+    },
+};
 
 const vuetify = createVuetify({
         components,
@@ -16,17 +39,12 @@ const vuetify = createVuetify({
             defaultTheme: 'customTheme',
             themes: {
                 customTheme,
-            }
-        }
+            },
+        },
     }
 )
 
-import 'vuetify/dist/vuetify.min.css';
-import 'v-calendar/style.css';
-// import AppCssTemplate from './AppCssTemplate.css'
-// import '@/assets/css/base.css'
 
-import {createPinia} from "pinia";
 
 const pinia = createPinia();
 pinia.use(({store}) => {
