@@ -4,6 +4,9 @@ import {computed, onMounted, ref} from "vue";
 import {useFetchStore} from '../stores/fetch'
 import type {WeekOverviewResponse} from "../../types/dto";
 import type {RoomReservation} from "../../types/model";
+import {storeToRefs} from "pinia";
+import theme from "../theme";
+import PopoverMenu from "@/components/PopoverMenu.vue";
 
 const props = defineProps<{
   title?: string
@@ -11,8 +14,11 @@ const props = defineProps<{
   day?: string
 }>()
 
-const fetchSotore = useFetchStore();
-const {loading, fetchFromApi} = fetchSotore
+const fetchStore = useFetchStore();
+const {fetchFromApi} = fetchStore
+const {loading} = storeToRefs(fetchStore)
+
+const loadingTable = ref(false)
 
 const calendarAttrs = ref([
   {
@@ -23,20 +29,16 @@ const calendarAttrs = ref([
 ]);
 
 const daysOfWeek = ref(["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"]);
-type TimeSlot = { label: string, lessonNr: number }
+type TimeSlot = { label: string, lessonNr: number | null }
 const timeSlots: Ref<TimeSlot[]> = ref([
   {label: "8:00", lessonNr: 1},
   {label: "08:45", lessonNr: 2},
-  {label: "09:30", lessonNr: null},
   {label: "09:45", lessonNr: 3},
   {label: "10:30", lessonNr: 4},
-  {label: "11:15", lessonNr: null},
   {label: "11:30", lessonNr: 5},
   {label: "12:15", lessonNr: 6},
-  {label: "13:00", lessonNr: null},
   {label: "13:30", lessonNr: 7},
   {label: "14:15", lessonNr: 8},
-  {label: "15:00", lessonNr: null},
   {label: "15:15", lessonNr: 9},
   {label: "16:00", lessonNr: 10}
 ]);
@@ -85,8 +87,10 @@ async function loadContent() {
     const queryParams = new Map();
     queryParams.set("date", formatDateToYYYYMMDD(selectedDay.value));
     queryParams.set("roomName", selectedRoom.value);
+    loadingTable.value = true;
     const response = await fetchFromApi("/rooms/weekOverview", queryParams);
     weekReservations.value = await response.json();
+    loadingTable.value = false;
   }
 
 }
@@ -127,15 +131,14 @@ onMounted(() => {
 <template>
   <v-container fluid class="fill-height">
     <v-row>
-      <v-col cols="12" md="3">
+      <v-col cols="12" md="4" lg="3" xl="2" >
         <v-container>
           <VCalendar
-              expanded
               :attributes="calendarAttrs"
               @dayclick="onNewDaySelected"/>
         </v-container>
       </v-col>
-      <v-col cols="12" md="9">
+      <v-col cols="12" md="8" lg="9" xl="10">
         <v-row>
           <v-combobox
               v-model="selectedRoom"
@@ -143,47 +146,60 @@ onMounted(() => {
               label="Raum"
               prepend-icon="mdi-magnify"
               @update:focused="onSearchBarFocused()"
-              @update:menu="onRoomSelected()"
+              @update:modelValue="onRoomSelected()"
           ></v-combobox>
         </v-row>
-        <v-row>
+        <v-row align="center" justify="center">
           <v-container fluid>
-            <v-skeleton-loader :loading="loading">
-            <v-data-table v-if="selectedRoom" class="flex-grow-1" color="primary">
-                <thead>
-                <tr>
-                  <th></th>
-                  <th></th>
-                  <th v-for="day in daysOfWeek" :key="day"
-                      :class="{ 'selected-day': day === weekReservations.weekDay }">{{ day }}
-                  </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="(timeSlot, timeSlotIndex) in timeSlots" :key="timeSlotIndex">
-                  <th v-if="timeSlot.lessonNr" class="pa-2">{{ timeSlot.lessonNr }}</th>
-                  <v-divider v-else></v-divider>
-                  <th v-if="timeSlot.lessonNr" class="pa-0 float-end">{{ timeSlot.label }}</th>
-                  <v-divider v-else></v-divider>
-                  <td id="reservation-card-td-" v-for="(day, dayIndex) in daysOfWeek" :key="dayIndex">
-                    <v-card
-                        v-if="timeSlot.lessonNr && sortedReservations[dayIndex].find(r => r.lessonNr.includes(timeSlot.lessonNr.toString()))"
-                        class="timetable-card ma-1 reservation-card d-flex" rounded>
-                      <v-card-text>
-                        {{
-                          getCardText(timeSlot, sortedReservations[dayIndex].find(r => r.lessonNr.includes(timeSlot.lessonNr.toString())))
-                        }}
-                      </v-card-text>
-                    </v-card>
-                    <v-divider v-else-if="!timeSlot.lessonNr" thickness="10"></v-divider>
-                    <v-card v-else class="timetable-card d-flex">
-                      <v-card-text></v-card-text>
-                    </v-card>
-                  </td>
-                </tr>
-                </tbody>
-            </v-data-table>
-            </v-skeleton-loader>
+            <v-table v-if="!loadingTable && selectedRoom" class="flex-shrink-1">
+              <thead>
+              <tr>
+                <th></th>
+                <th></th>
+                <th v-for="day in daysOfWeek" :key="day"
+                    :class="{ 'selected-day': day === weekReservations.weekDay, 'selected-day-th': day === weekReservations.weekDay  }"
+                >{{ day }}
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="(timeSlot, timeSlotIndex) in timeSlots" :key="timeSlotIndex">
+                <td class="pa-2 tableNumberCol">{{ timeSlot.lessonNr }}</td>
+                <td class="pa-0 tableTimeCol">{{ timeSlot.label }}</td>
+                <td id="reservation-card-td-"
+                    v-for="(day, dayIndex) in daysOfWeek"
+                    :class="{ 'selected-day': day === weekReservations.weekDay, 'tableDataCol': true }"
+                    :key="dayIndex"
+                >
+                  <v-card color="secondary"
+                          v-if="sortedReservations[dayIndex].find(r => r.lessonNr.includes(timeSlot.lessonNr.toString()))"
+                          class="timetable-card ma-1 reservation-card d-flex" rounded>
+                    <v-card-text>
+                      {{
+                        getCardText(timeSlot, sortedReservations[dayIndex].find(r => r.lessonNr.includes(timeSlot.lessonNr.toString())))
+                      }}
+                    </v-card-text>
+                    <PopoverMenu></PopoverMenu>
+                  </v-card>
+                  <v-card v-else class="timetable-card d-flex" color="primary">
+                    <v-card-text></v-card-text>
+                  </v-card>
+                </td>
+              </tr>
+              <tr>
+              </tr>
+              </tbody>
+            </v-table>
+            <v-row v-else-if="loadingTable" justify="center">
+                <v-progress-circular
+                    color="primary"
+                    indeterminate
+                >
+                </v-progress-circular>
+            </v-row>
+            <v-row v-else-if="!selectedRoom" justify="center">
+              Bitte Raum auswählen
+            </v-row>
           </v-container>
         </v-row>
       </v-col>
@@ -194,12 +210,33 @@ onMounted(() => {
 
 <style>
 .selected-day {
-  background-color: var(--schule-primary-color); /* Customize the background color as needed */
-  border: 2px solid var(--schule-dark-color); /* Customize the border styles as needed */
+  background-color: #a28089;
+
+}
+
+.selected-day-th {
+  border: 2px solid black;
+  border-radius: 10px 10px 0px 0px;
 }
 
 .reservation-card {
   background-color: #E09E50;
+}
+
+td, th {
+  background-color: #E8ECEB;
+}
+
+.tableDataCol {
+  width: 18%;
+}
+
+.tableNumberCol {
+  width: 3%;
+}
+
+.tableTimeCol {
+  width: 7%;
 }
 
 
