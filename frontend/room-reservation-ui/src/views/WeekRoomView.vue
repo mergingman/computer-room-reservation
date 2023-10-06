@@ -77,6 +77,7 @@ const sortedReservations: Ref<RoomReservation[][]> = computed(() => {
   return reservations; // returns 5 array from monday to friday having the
 })
 
+const showTable = computed(() => !loadingTable.value && roomNames.value.find(room => room === selectedRoom.value))
 function onNewDaySelected(day: any, e: MouseEvent): void {
   selectedDay.value = day.date;
   loadContent();
@@ -88,9 +89,15 @@ async function loadContent() {
     queryParams.set("date", formatDateToYYYYMMDD(selectedDay.value));
     queryParams.set("roomName", selectedRoom.value);
     loadingTable.value = true;
-    const response = await fetchFromApi("/rooms/weekOverview", queryParams);
-    weekReservations.value = await response.json();
+    const response = await fetchFromApi("/reservations/weekOverview", queryParams);
     loadingTable.value = false;
+    weekReservations.value = await response.json();
+
+    if (response.ok) {
+    }
+    else {
+      // selectedRoom.value = null;
+    }
   }
 
 }
@@ -141,6 +148,7 @@ onMounted(() => {
       <v-col cols="12" md="8" lg="9" xl="10">
         <v-row>
           <v-combobox
+              :loading="loading"
               v-model="selectedRoom"
               :items="roomNames"
               label="Raum"
@@ -149,9 +157,22 @@ onMounted(() => {
               @update:modelValue="onRoomSelected()"
           ></v-combobox>
         </v-row>
+        <v-row v-if="loadingTable" justify="center">
+          <v-progress-circular
+              color="primary"
+              indeterminate
+          >
+          </v-progress-circular>
+        </v-row>
+        <v-row v-else-if="!showTable" justify="center">
+          <v-banner color="primary" rounded>
+            <v-icon icon="mdi-information" class="ma-1" size="20"></v-icon>
+            <v-banner-text class="ma-1">Bitte Raum auswählen</v-banner-text>
+          </v-banner>
+        </v-row>
         <v-row align="center" justify="center">
           <v-container fluid>
-            <v-table v-if="!loadingTable && selectedRoom" class="flex-shrink-1">
+            <v-table v-if="showTable" class="flex-shrink-1">
               <thead>
               <tr>
                 <th></th>
@@ -181,7 +202,7 @@ onMounted(() => {
                     </v-card-text>
                     <PopoverMenu></PopoverMenu>
                   </v-card>
-                  <v-card v-else class="timetable-card d-flex" color="primary">
+                  <v-card v-else class="timetable-card d-flex" color="filler">
                     <v-card-text></v-card-text>
                   </v-card>
                 </td>
@@ -190,16 +211,6 @@ onMounted(() => {
               </tr>
               </tbody>
             </v-table>
-            <v-row v-else-if="loadingTable" justify="center">
-                <v-progress-circular
-                    color="primary"
-                    indeterminate
-                >
-                </v-progress-circular>
-            </v-row>
-            <v-row v-else-if="!selectedRoom" justify="center">
-              Bitte Raum auswählen
-            </v-row>
           </v-container>
         </v-row>
       </v-col>
@@ -210,7 +221,7 @@ onMounted(() => {
 
 <style>
 .selected-day {
-  background-color: #a28089;
+  background-color: rgba(224, 224, 224, 0.99);
 
 }
 
@@ -239,5 +250,16 @@ td, th {
   width: 7%;
 }
 
+.slot-color-0{
+  color: #DA7B93;
+}
+
+.slot-color-1{
+  color: #376E6F;
+}
+
+.slot-color-2{
+  color: #1C3334;
+}
 
 </style>

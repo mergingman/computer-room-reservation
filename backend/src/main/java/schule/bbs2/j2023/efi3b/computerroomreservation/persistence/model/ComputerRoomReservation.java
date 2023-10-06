@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import schule.bbs2.j2023.efi3b.computerroomreservation.dto.ComputerRoomReservationDTO;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -35,4 +36,7 @@ public class ComputerRoomReservation implements Serializable {
     public ComputerRoomReservation() {
     }
 
+    public ComputerRoomReservationDTO toDTO() {
+        return new ComputerRoomReservationDTO(this);
+    }
 }

@@ -2,10 +2,13 @@ package schule.bbs2.j2023.efi3b.computerroomreservation.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import schule.bbs2.j2023.efi3b.computerroomreservation.controller.params.RoomReservationWeekOverviewQueryParameters;
-import schule.bbs2.j2023.efi3b.computerroomreservation.dto.RoomReservationWeekOverview;
+import schule.bbs2.j2023.efi3b.computerroomreservation.dto.ComputerRoomReservationDTO;
+import schule.bbs2.j2023.efi3b.computerroomreservation.dto.RoomReservationWeekOverviewDTO;
 import schule.bbs2.j2023.efi3b.computerroomreservation.persistence.model.ComputerRoomReservation;
 import schule.bbs2.j2023.efi3b.computerroomreservation.persistence.repository.ComputerRoomRepository;
 import schule.bbs2.j2023.efi3b.computerroomreservation.persistence.repository.ComputerRoomReservationRepository;
@@ -26,7 +29,7 @@ public class ComputerRoomReservationService {
     private final ComputerRoomReservationRepository computerRoomReservationRepository;
     private final ComputerRoomRepository computerRoomRepository;
 
-    public RoomReservationWeekOverview getComputerRoomReservationWeekOverview(RoomReservationWeekOverviewQueryParameters params) {
+    public RoomReservationWeekOverviewDTO getComputerRoomReservationWeekOverview(RoomReservationWeekOverviewQueryParameters params) {
         Instant parsedDate = params.parseDate();
         String roomName = params.getRoomName();
         Instant[] weekPeriod = DateHelper.getWeekPeriodFromInstant(parsedDate);
@@ -43,17 +46,17 @@ public class ComputerRoomReservationService {
         return createRoomReservationWeekOverviewDTOFromComputerRoomReservations(reservations, parsedDate, roomName);
     }
 
-    private RoomReservationWeekOverview createRoomReservationWeekOverviewDTOFromComputerRoomReservations(
+    private RoomReservationWeekOverviewDTO createRoomReservationWeekOverviewDTOFromComputerRoomReservations(
             List<ComputerRoomReservation> reservations,
             Instant selectedDate,
             String roomName
     ) {
-        List<RoomReservationWeekOverview.Reservation> reservationList =
+        List<RoomReservationWeekOverviewDTO.Reservation> reservationList =
         reservations
                 .stream()
                 .map(this::createReservationDTOFromComputerRoomReservation)
                 .toList();
-        return new RoomReservationWeekOverview(
+        return new RoomReservationWeekOverviewDTO(
                 roomName,
                 selectedDate,
                 selectedDate.atZone(DateHelper.ZONE_ID).getDayOfWeek().getDisplayName(TextStyle.FULL, DateHelper.LOCALE),
@@ -61,7 +64,7 @@ public class ComputerRoomReservationService {
         );
     }
 
-    private RoomReservationWeekOverview.Reservation createReservationDTOFromComputerRoomReservation(ComputerRoomReservation reservation) {
+    private RoomReservationWeekOverviewDTO.Reservation createReservationDTOFromComputerRoomReservation(ComputerRoomReservation reservation) {
         String weekday =
                 reservation
                         .getStartTime()
@@ -70,7 +73,7 @@ public class ComputerRoomReservationService {
                         .getDisplayName(TextStyle.FULL, Locale.GERMANY);
         String teacherLastName = reservation.getUser().getLastName();
         String lessonNr = TimeSlot.getLessonString(reservation.getStartTime(), reservation.getEndTime());
-        return new RoomReservationWeekOverview.Reservation(
+        return new RoomReservationWeekOverviewDTO.Reservation(
                 weekday,
                 teacherLastName,
                 reservation.getStartTime(),
@@ -78,5 +81,11 @@ public class ComputerRoomReservationService {
                 lessonNr,
                 reservation.getStatus()
         );
+    }
+
+    public Page<ComputerRoomReservationDTO> getPaginatedReservations(Pageable pageable) {
+        return computerRoomReservationRepository
+                .findAll(pageable)
+                .map(ComputerRoomReservation::toDTO);
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class RoomReservationWeekOverview {
+public class RoomReservationWeekOverviewDTO {
 
     private String roomName;
     private Instant date;

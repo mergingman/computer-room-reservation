@@ -8,5 +8,3 @@ export function parseWeekOverviewResponse(json: WeekOverviewResponse): WeekOverv
         })
 
 }
-
-function

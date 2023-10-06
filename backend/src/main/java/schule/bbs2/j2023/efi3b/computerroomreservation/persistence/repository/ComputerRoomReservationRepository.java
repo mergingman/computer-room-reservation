@@ -13,5 +13,4 @@ import java.util.List;
 public interface ComputerRoomReservationRepository extends JpaRepository<ComputerRoomReservation, Long> {
 
     List<ComputerRoomReservation> findAllByStartTimeAfterAndEndTimeBeforeAndComputerRoomName(Instant startTime,Instant endTime, String computerRoomName);
-
 }

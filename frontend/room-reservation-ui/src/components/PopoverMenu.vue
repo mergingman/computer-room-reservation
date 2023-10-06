@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import {ref} from "vue";
 
+const props = defineProps<{
+
+}>()
+
 const dialog = ref(false);
+const dateValue = ref(new Date())
 </script>
 
 <template>

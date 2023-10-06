@@ -20,15 +20,17 @@ const customTheme: ThemeDefinition = {
     dark: false,
     colors: {
         background: '#E8ECEB',
-        tertiary: '#2D3E4E',
-        primary: '#8CBDB9',
+        tertiary: '#2F4454',
+        primary: '#2F4454',
         'primary-darken-1': '#3700B3',
-        secondary: '#E09E50',
+        secondary: '#2E151B',
         'secondary-darken-1': '#018786',
         error: '#B00020',
         info: '#2196F3',
         success: '#4CAF50',
         warning: '#FB8C00',
+        filler: '#E8ECEB',
+
     },
 };
 
